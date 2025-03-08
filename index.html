@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Countdown Timer</title>
+  <title>Countdown Timer (Days, Hours, Minutes, Seconds + Weeks & Months)</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -14,9 +14,10 @@
       color: #333;
     }
     #countdown {
-      font-size: 2em;
+      font-size: 1.5em;
       color: #555;
       margin-top: 20px;
+      line-height: 1.6;
     }
   </style>
 </head>
@@ -25,29 +26,60 @@
   <div id="countdown"></div>
   
   <script>
-    // Set the target date (December 31, 2026 23:59:59)
-    const targetDate = new Date('December 31, 2026 23:59:59').getTime();
+    // Target date: December 31, 2026 at 23:59:59
+    const targetDate = new Date('December 31, 2026 23:59:59');
+
+    // Helper function to calculate approximate months between two dates
+    function getMonthsBetweenDates(start, end) {
+      // Calculate total months from years and months
+      let startYear = start.getFullYear();
+      let startMonth = start.getMonth(); // 0-based (Jan = 0, Dec = 11)
+      let endYear = end.getFullYear();
+      let endMonth = end.getMonth();
+      
+      // Total months difference
+      let months = (endYear - startYear) * 12 + (endMonth - startMonth);
+
+      // Adjust if the 'day of month' of the start is greater than the 'day of month' of the end
+      if (end.getDate() < start.getDate()) {
+        months--;
+      }
+      return months;
+    }
 
     // Update the countdown every second
     const countdownTimer = setInterval(() => {
-      const now = new Date().getTime();
-      const distance = targetDate - now;
-
-      // Time calculations for days, hours, minutes, and seconds
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-      // Display the result in the element with id="countdown"
-      document.getElementById('countdown').innerHTML = 
-        days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+      const now = new Date();
+      const distance = targetDate.getTime() - now.getTime();
 
       // If the countdown is finished, display a message
       if (distance < 0) {
         clearInterval(countdownTimer);
         document.getElementById('countdown').innerHTML = "Countdown finished!";
+        return;
       }
+
+      // Time calculations
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      // Weeks (approx.)
+      const weeks = Math.floor(days / 7);
+
+      // Months (approx.)
+      const months = getMonthsBetweenDates(now, targetDate);
+
+      // Display the result
+      document.getElementById('countdown').innerHTML = 
+        `<strong>Months left (approx.):</strong> ${months}<br>` +
+        `<strong>Weeks left (approx.):</strong> ${weeks}<br>` +
+        `<strong>Days:</strong> ${days} &nbsp;` +
+        `<strong>Hours:</strong> ${hours} &nbsp;` +
+        `<strong>Minutes:</strong> ${minutes} &nbsp;` +
+        `<strong>Seconds:</strong> ${seconds}`;
+
     }, 1000);
   </script>
 </body>
